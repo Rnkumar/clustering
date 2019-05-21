@@ -1,13 +1,17 @@
 
 import os
 import numpy as np
+import pandas as pd
 import flask
 import xml.etree.ElementTree as ET
 import joblib 
 from sklearn.cluster import KMeans
+from sklearn.cluster import DBSCAN
 from flask import Flask, render_template, request, Response, jsonify
+from flask_cors import CORS
 
 app=Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def home():
@@ -36,6 +40,13 @@ def updateModel():
 def populate():
     locations = parseXML('map.xml')
     return jsonify(data=locations[:20])
+
+
+@app.route('/clusterData',methods=["POST"])
+def clusterData():
+    content = request.get_json()
+    value = runDBSCAN(content)
+    return jsonify(data=value)
 
 def ValuePredictor(coords):
     loaded_model = joblib.load(open("model.pkl","rb"))
@@ -66,3 +77,18 @@ def parseXML(xmlfile):
         k.append(float(item.attrib['lon']))
         locations.append(k)
     return locations
+
+
+def runDBSCAN(X):
+    coords = np.array(X) #np.array([[13.0544,77.6047],[13.0499,77.6122],[13.0228,77.7714],[13.0915,77.6414]])
+    kms_per_radian = 6371.0088
+    epsilon = 7 / kms_per_radian
+    db = DBSCAN(eps=epsilon, min_samples=1, algorithm='ball_tree', metric='haversine').fit(np.radians(coords))
+    cluster_labels = db.labels_
+    print(cluster_labels)
+    num_clusters = len(set(cluster_labels))
+    clusters = pd.Series([coords[cluster_labels == n] for n in range(num_clusters)])
+    print(clusters)
+    return clusters.to_json(orient='index')
+
+    
