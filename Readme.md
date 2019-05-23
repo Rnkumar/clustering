@@ -18,7 +18,7 @@
     4. The List of data will be provided.Click on update model button on the bottom of the screen.
     5. This displays clusters of data.
     6. In the input box, you can enter a latitude and longitude as comma separated which will show you the cluster to which it can be assigned to so that it can be added dynamically to the driver list. 
-    7.While testing the adminpanel, make to keep this python server up since this serves the clustering api for the adminpanel.
+    7.While testing the adminpanel, make sure to keep this python server up since this serves the clustering api for the adminpanel.
 
 
 
